@@ -62,6 +62,9 @@ export const useWsStore = create<WsState>((set) => ({
 
   setConnected: (v) => set({ connected: v }),
   initListeners: async () => {
+    const isConnected = await invoke<boolean>("comment_is_connected");
+    set({ connected: isConnected, connecting: false });
+
     const unlistenSuccess = await listen<ConnectionEvent>(
       "connection-success",
       (event) => {
@@ -188,6 +191,7 @@ export const useWsStore = create<WsState>((set) => ({
     };
   },
   connect: async (uid: number, room: number, token: string) => {
+    set({ connecting: true });
     try {
       await invoke("comment_connect", {
         host: "broadcastlv.chat.bilibili.com",
@@ -197,8 +201,12 @@ export const useWsStore = create<WsState>((set) => ({
         token: token,
       });
     } catch (error) {
-      toast.error(`connect error: ${(error as Error).message}`);
-      set({ connecting: false });
+      const message = String(error);
+      if (!message.includes("Already connected")) {
+        toast.error(`connect error: ${message}`);
+      }
+      const isConnected = await invoke<boolean>("comment_is_connected");
+      set({ connected: isConnected, connecting: false });
     }
   },
   disconnect: async () => {
