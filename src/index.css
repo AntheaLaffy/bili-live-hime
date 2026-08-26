@@ -124,6 +124,10 @@
     @apply font-sans bg-background text-foreground;
   }
 
+  body.floating-window {
+    background: transparent;
+  }
+
   html {
     @apply font-sans;
   }

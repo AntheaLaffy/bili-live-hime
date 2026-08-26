@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { AppSidebar, type TabType } from "@/components/app-sidebar";
 import { LiveStreamSettings } from "@/view/live-stream-settings";
 import { MoreSettings } from "@/view/more-settings";
-import { LiveComments } from "@/view/live-comments";
 import { Navbar } from "@/components/navbar";
 import { StatusBar } from "@/components/status-bar";
 import { LoginScreen } from "@/screens/login-screen";
@@ -12,12 +11,18 @@ import { Toaster } from "@/components/ui/sonner";
 import { UserProfile } from "@/view/user-profile";
 import { LiveRoomManager } from "@/view/manager/live-room-manager";
 import { useWsStore } from "./store/ws";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { FloatingComments } from "@/view/floating-comments";
+import { DetachedComments } from "@/view/detached-comments";
+import { listen } from "@tauri-apps/api/event";
 
 type AuthState = "loading" | "login" | "authenticated";
 
 export default function App() {
+  const isCommentsWindow = getCurrentWindow().label === "comments";
   const [activeTab, setActiveTab] = useState<TabType>("account");
   const [authState, setAuthState] = useState<AuthState>("loading");
+  const [commentsDetached, setCommentsDetached] = useState(true);
 
   const init = useConfigStore((state) => state.init);
   const isInitialized = useConfigStore((state) => state.isInitialized);
@@ -31,6 +36,16 @@ export default function App() {
       listener.then((f) => f());
     };
   }, [initListeners]);
+
+  useEffect(() => {
+    if (isCommentsWindow) return;
+    const unlisten = listen("comments-window-docked", () => {
+      setCommentsDetached(false);
+    });
+    return () => {
+      unlisten.then((dispose) => dispose());
+    };
+  }, [isCommentsWindow]);
 
   useEffect(() => {
     if (!isInitialized) {
@@ -77,7 +92,12 @@ export default function App() {
                     <UserProfile onLogout={handleLogout} />
                   )}
                   {activeTab === "stream" && <LiveStreamSettings />}
-                  {activeTab === "comments" && <LiveComments />}
+                  {activeTab === "comments" && (
+                    <DetachedComments
+                      detached={commentsDetached}
+                      onDetach={() => setCommentsDetached(true)}
+                    />
+                  )}
                   {activeTab === "manager" && <LiveRoomManager />}
                   {activeTab === "settings" && <MoreSettings />}
                 </div>
@@ -88,6 +108,16 @@ export default function App() {
         );
     }
   };
+
+  if (isCommentsWindow) {
+    return isInitialized ? (
+      <FloatingComments />
+    ) : (
+      <div className="flex h-screen items-center justify-center bg-transparent text-sm text-white/70">
+        正在载入弹幕...
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col overflow-hidden border border-border bg-background shadow-2xl">

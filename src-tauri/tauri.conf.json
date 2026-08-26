@@ -12,12 +12,28 @@
   "app": {
     "windows": [
       {
+        "label": "main",
         "title": "哔哩哔哩直播姬（仮）",
         "width": 900,
         "height": 600,
         "minWidth": 900,
         "minHeight": 600,
         "decorations": false
+      },
+      {
+        "label": "comments",
+        "title": "直播弹幕",
+        "width": 360,
+        "height": 375,
+        "minWidth": 320,
+        "minHeight": 280,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "shadow": false,
+        "resizable": true,
+        "maximizable": false
       }
     ],
     "security": {

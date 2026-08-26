@@ -12,6 +12,7 @@ import {
   Medal,
   Award,
   Anchor,
+  ArrowUpRight,
 } from "@hugeicons/core-free-icons";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,7 +35,11 @@ import { useConfigStore } from "@/store/config";
 const intToHexColor = (color: number) =>
   `#${color.toString(16).padStart(6, "0")}`;
 
-export function LiveComments() {
+interface LiveCommentsProps {
+  onDetach?: () => void;
+}
+
+export function LiveComments({ onDetach }: LiveCommentsProps = {}) {
   const [newMessage, setNewMessage] = useState("");
   const [autoScroll, setAutoScroll] = useState(true);
   const [activeTab, setActiveTab] = useState<"all" | "superchat" | "audience">(
@@ -258,6 +263,12 @@ export function LiveComments() {
       <div className="flex items-center justify-between">
         <Label className="text-xl">直播弹幕</Label>
         <div className="flex items-center gap-2">
+          {onDetach && (
+            <Button variant="outline" onClick={onDetach}>
+              <HugeiconsIcon icon={ArrowUpRight} />
+              拆分
+            </Button>
+          )}
           <Badge variant="outline">{regularComments.length} 条弹幕</Badge>
           <Button
             variant={autoScroll ? "default" : "outline"}

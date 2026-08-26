@@ -4,7 +4,7 @@ mod utils;
 
 use crate::commands::{comment_connect, comment_disconnect, comment_is_connected};
 use std::sync::Arc;
-use tauri::{Manager, RunEvent};
+use tauri::{Manager, PhysicalPosition, RunEvent};
 use tokio::sync::Mutex;
 
 pub struct ConnectionState {
@@ -20,6 +20,22 @@ pub fn run() {
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_opener::init())
+        .setup(|app| {
+            if let Some(window) = app.get_webview_window("comments") {
+                if let Some(monitor) = window.primary_monitor()? {
+                    let monitor_position = monitor.position();
+                    let monitor_size = monitor.size();
+                    let window_size = window.outer_size()?;
+                    let margin = 20;
+                    let x = monitor_position.x
+                        + monitor_size.width.saturating_sub(window_size.width) as i32
+                        - margin;
+                    let y = monitor_position.y + margin;
+                    window.set_position(PhysicalPosition::new(x, y))?;
+                }
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             comment_connect,
             comment_disconnect,
