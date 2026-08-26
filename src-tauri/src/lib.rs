@@ -4,7 +4,7 @@ mod utils;
 
 use crate::commands::{comment_connect, comment_disconnect, comment_is_connected};
 use std::sync::Arc;
-use tauri::{Manager, PhysicalPosition, RunEvent};
+use tauri::{Manager, PhysicalPosition, RunEvent, WindowEvent};
 use tokio::sync::Mutex;
 
 pub struct ConnectionState {
@@ -45,6 +45,13 @@ pub fn run() {
         .expect("error while running tauri application");
 
     app.run(move |_app_handle, _event| match &_event {
+        RunEvent::WindowEvent {
+            label,
+            event: WindowEvent::CloseRequested { .. },
+            ..
+        } if label == "main" => {
+            _app_handle.exit(0);
+        }
         RunEvent::ExitRequested { .. } => {
             let app_state = _app_handle.state::<AppState>();
             tauri::async_runtime::block_on(async {
