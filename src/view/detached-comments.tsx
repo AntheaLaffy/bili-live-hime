@@ -1,4 +1,4 @@
-import { MessageSquare } from "@hugeicons/core-free-icons";
+import { MessageSquare, X } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,13 @@ import { LiveComments } from "@/view/live-comments";
 interface DetachedCommentsProps {
   detached: boolean;
   onDetach: () => void;
+  onDock: () => void;
 }
 
 export function DetachedComments({
   detached,
   onDetach,
+  onDock,
 }: DetachedCommentsProps) {
   const connected = useWsStore((state) => state.connected);
   const messageCount = useWsStore(
@@ -27,6 +29,14 @@ export function DetachedComments({
       await commentsWindow.setFocus();
       onDetach();
     }
+  };
+
+  const dockComments = async () => {
+    const commentsWindow = await WebviewWindow.getByLabel("comments");
+    if (commentsWindow) {
+      await commentsWindow.hide();
+    }
+    onDock();
   };
 
   if (!detached) {
@@ -47,10 +57,16 @@ export function DetachedComments({
           <Badge variant="outline">{messageCount} 条消息</Badge>
         </div>
       </div>
-      <Button onClick={showComments}>
-        <HugeiconsIcon icon={MessageSquare} />
-        显示弹幕悬浮窗
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button onClick={showComments}>
+          <HugeiconsIcon icon={MessageSquare} />
+          显示弹幕悬浮窗
+        </Button>
+        <Button variant="outline" onClick={dockComments}>
+          <HugeiconsIcon icon={X} />
+          关闭悬浮窗
+        </Button>
+      </div>
     </div>
   );
 }

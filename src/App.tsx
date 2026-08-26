@@ -96,6 +96,7 @@ export default function App() {
                     <DetachedComments
                       detached={commentsDetached}
                       onDetach={() => setCommentsDetached(true)}
+                      onDock={() => setCommentsDetached(false)}
                     />
                   )}
                   {activeTab === "manager" && <LiveRoomManager />}
