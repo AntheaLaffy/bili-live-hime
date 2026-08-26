@@ -115,7 +115,7 @@ export function FloatingComments() {
   const [showOpacity, setShowOpacity] = useState(false);
   const [opacity, setOpacity] = useState(() => {
     const savedOpacity = Number(localStorage.getItem(OPACITY_STORAGE_KEY));
-    return savedOpacity >= 40 && savedOpacity <= 100 ? savedOpacity : 80;
+    return savedOpacity >= 0 && savedOpacity <= 100 ? savedOpacity : 80;
   });
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -280,7 +280,7 @@ export function FloatingComments() {
           <Slider
             aria-label="悬浮窗透明度"
             value={[opacity]}
-            min={40}
+            min={0}
             max={100}
             step={5}
             onValueChange={(value) => setOpacity(value[0])}
