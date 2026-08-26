@@ -26,10 +26,10 @@ pub fn run() {
                     let monitor_position = monitor.position();
                     let monitor_size = monitor.size();
                     let window_size = window.outer_size()?;
-                    let margin = 20;
-                    let x = monitor_position.x
-                        + monitor_size.width.saturating_sub(window_size.width) as i32
-                        - margin;
+                    let margin = 20_i32;
+                    let available_width =
+                        monitor_size.width.saturating_sub(window_size.width) as i32;
+                    let x = monitor_position.x + (available_width - margin).max(0);
                     let y = monitor_position.y + margin;
                     window.set_position(PhysicalPosition::new(x, y))?;
                 }
