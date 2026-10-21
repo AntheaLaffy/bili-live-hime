@@ -62,8 +62,13 @@ export const useWsStore = create<WsState>((set) => ({
 
   setConnected: (v) => set({ connected: v }),
   initListeners: async () => {
-    const isConnected = await invoke<boolean>("comment_is_connected");
-    set({ connected: isConnected, connecting: false });
+    try {
+      const isConnected = await invoke<boolean>("comment_is_connected");
+      set({ connected: isConnected, connecting: false });
+    } catch (error) {
+      console.error("Failed to query comment connection status:", error);
+      set({ connected: false, connecting: false });
+    }
 
     const unlistenSuccess = await listen<ConnectionEvent>(
       "connection-success",
@@ -205,8 +210,16 @@ export const useWsStore = create<WsState>((set) => ({
       if (!message.includes("Already connected")) {
         toast.error(`connect error: ${message}`);
       }
-      const isConnected = await invoke<boolean>("comment_is_connected");
-      set({ connected: isConnected, connecting: false });
+      try {
+        const isConnected = await invoke<boolean>("comment_is_connected");
+        set({ connected: isConnected, connecting: false });
+      } catch (statusError) {
+        console.error(
+          "Failed to query comment connection status:",
+          statusError,
+        );
+        set({ connected: false, connecting: false });
+      }
     }
   },
   disconnect: async () => {

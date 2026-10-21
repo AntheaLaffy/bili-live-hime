@@ -22,7 +22,7 @@ export default function App() {
   const isCommentsWindow = getCurrentWindow().label === "comments";
   const [activeTab, setActiveTab] = useState<TabType>("account");
   const [authState, setAuthState] = useState<AuthState>("loading");
-  const [commentsDetached, setCommentsDetached] = useState(true);
+  const [commentsDetached, setCommentsDetached] = useState(false);
 
   const init = useConfigStore((state) => state.init);
   const isInitialized = useConfigStore((state) => state.isInitialized);
